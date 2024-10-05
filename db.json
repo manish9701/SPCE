@@ -1,0 +1,132 @@
+{
+  "satellites":{
+
+
+    "Earth Observation": {
+      "image": "/images/EO.gif",
+      "Nano": {
+        "Image": "/satsimage/Nano.png",
+        "OrbitType": "LEO, SSO",
+        "Resolution": "Low, Medium ",
+        "SpectralBands": "Multispectral, Panchromatic",
+        "SwathWidth": "Narrow to Medium",
+        "DataDelivery": "Near Real-time/Delayed",
+        "InstrumentType": "Optical,  Radar",
+        "Applications": "Environmental Monitoring, Education, Technology Demonstration",
+        "downlinkDataRate":{
+          "Base": "100 kbps to 1 Mbps",
+          "High": "1 Mbps to 50 Mbps"
+        },
+        "DownlinkCost":{
+          "base": "included",
+          "high": "20"
+        },
+        "CostPerDay":{
+              "LEO": "150",
+              "SSO": "250"
+            }
+        
+      },
+
+
+
+
+      "Micro": {
+        "Image": "/satsimage/Micro.png",
+        "OrbitType": "LEO, Polar, SSO",
+        "Resolution": "Medium, High",
+        "SpectralBands": "Multispectral, Hyperspectral, Panchromatic",
+        "SwathWidth": "Medium to Wide",
+        "DataDelivery": "Near Real-time/Delayed",
+        "InstrumentType": "Optical, Radar, Lidar",        
+        "Applications": "Earth Observation, Scientific Research, Environmental Monitoring",
+
+        "downlinkDataRate":{
+        "Base": "100 kbps to 10 Mbps",
+        "High": "10 Mbps to 100 Mbps"
+      },
+
+      "DownlinkCost":{
+          "base": "included",
+          "high": "40"
+        },
+
+      "CostPerDay":{
+        "LEO": "$250",
+        "Polar": "$350",
+        "SSO": "$450"
+      }
+        
+      },
+
+
+
+      "Mini": {
+        "Image": "/satsimage/Mini.png",
+        "OrbitType": "LEO, Polar, SSO, GEO",
+        "Resolution": "High, Very High",
+        "SpectralBands": "Multi, Hyper, Panchromatic, Infrared",
+        "SwathWidth": "Wide, Adjustable",
+        "DataDelivery": "Real-time, Near Real-time",
+        "InstrumentType": "Optical, Radar, Lidar, Infrared, Thermal",        
+        "Applications": "Disaster Management, Climate Monitoring, Agriculture, Urban Planning",
+        "downlinkDataRate":{
+          "Base": "10 Mbps to 100 Mbps",
+          "High": "100 Mbps to 1 Gbps"
+        },
+
+        "DownlinkCost":{
+          "base": "included",
+          "high": "50"
+        },
+
+        "CostPerDay":{
+          "LEO": "$350",
+          "Polar":"$450",
+          "SSO": "$550",
+          "GEO": "$650"
+        }
+        
+      }
+    },
+
+
+    "Navigation": {
+      "image": "/images/EO.gif"
+      
+    }, 
+
+    "Space Observation": {
+      "image": "/images/EO.gif"
+      
+    },
+
+    "Communication": {
+      "image": "/images/EO.gif"
+    }, 
+
+    "Experimental": {
+      "image": "/images/EO.gif"
+    }, 
+
+    "Military Surveillance": {
+      "image": "/images/EO.gif"
+    }, 
+
+    "Weather Monitoring": {
+      "image": "/images/EO.gif"
+    }, 
+
+    "Education & Resesrach": {
+      "image": "/images/EO.gif"
+    }, 
+
+    "Tech Demonstration": {
+      "image": "/images/EO.gif"
+    },
+
+    "Scientific Resesrach": {
+      "image": "/images/EO.gif"
+    }
+  }
+}
