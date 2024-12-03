@@ -5,7 +5,7 @@ import Footer from './components/layout/footer';
 import Home from './pages/home';
 import Services from './pages/services';
 import SatInfo from './pages/SatInfo';
-import Satconfirm from './pages/satconfirm'; // Import SatConfirm
+/* import Satconfirm from './pages/satconfirm'; // Import SatConfirm */
 import Dashboard from './pages/dash'
 import YourFleet from './pages/YourFleet';
 
@@ -20,7 +20,7 @@ const App: React.FC = () => {
             <Route path="/services" element={<Services />} />
             <Route path="/satinfo/:category" element={<SatInfo />} /> 
             <Route path="/SatInfo" element={<SatInfo />} /> {/* Ensure this route is defined */}
-            <Route path="/satconfirm" element={<Satconfirm />} /> {/* Add this route */}
+           {/*  <Route path="/satconfirm" element={<Satconfirm />} /> */} {/* Add this route */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/YourFleet" element={<YourFleet />} />
           </Routes> 

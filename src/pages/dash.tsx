@@ -1,52 +1,55 @@
-import React from 'react';
+import React, { useEffect, createContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SatData from '../components/Common/satData';
-import InstrumentData from '../components/Common/instrumentdata';
-import SW from '../components/Common/sw';
+import InstrumentData from '../components/Common/dash/instrumentdata';
+import SW from '../components/Common/dash/sw';
 
+interface SatelliteData {
+  name: string;
+  type: string;
+  orbit: string;
+  downlinkRate: string;
+  startDate: Date;
+  endDate: Date;
+  noradId: number;
+}
 
-
+export const NoradIdContext = createContext<number | null>(null);
+export const SatelliteContext = createContext<SatelliteData | null>(null);
 
 const Dashboard: React.FC = () => {
-  /* const satData = {
-    satId: 'SAT1586',
-    nextTransmission: 27,
-    creditsLeft: 20,
-    latitude: 200,
-    longitude: 200,
-    altitude: 550.25,
-    speed: 27000,
-    period: 97,
-  }; */
+  const navigate = useNavigate();
+  const [noradId, setNoradId] = useState<number | null>(null);
+  const [satelliteData, setSatelliteData] = useState<SatelliteData | null>(null);
+
+  useEffect(() => {
+    const storedNoradId = localStorage.getItem('activeSatelliteNoradId');
+    const storedSatData = localStorage.getItem('activeSatelliteData');
+    
+    if (storedNoradId) {
+      setNoradId(parseInt(storedNoradId));
+    }
+    if (storedSatData) {
+      setSatelliteData(JSON.parse(storedSatData));
+    }
+  }, []);
 
   return (
-    <div className="flex flex-col p-2 h-full w-full">
-    {/*   <div className='flex justify-between items-center mb-2'>
-        <h1 className="font-mono text-xl font-medium flex items-center ">
-        Dashboard
-      </h1>
-
-      <div className="flex justify-between gap-2 ">
-      <Link to="/YourFleet" className="bg-white  text-black text-sm p-1 rounded-sm uppercase">View Your Fleet</Link>
-        <button className=" bg-white  text-black text-sm p-1 rounded-sm uppercase">
-          Add New Satellite
-        </button>
-      </div>
-   </div> */}
-      
-
-      <div className="flex flex-grow w-full h-full">
-        <div className="flex-grow bg-zinc-200 p-2 rounded-sm  w-full h-full">
-          <div className="flex flex-row gap-2 w-full h-full">
-            <SatData/>
-            <InstrumentData />
-            {/* <div className='flex-grow  w-[16%] bg-white rounded-sm '>
-              
-            </div> */}
-            <SW />
+    <NoradIdContext.Provider value={noradId}>
+      <SatelliteContext.Provider value={satelliteData}>
+        <div className="flex flex-col p-2 h-full w-full">
+          <div className="flex flex-grow w-full h-full">
+            <div className="flex-grow bg-zinc-200 p-2 rounded-sm w-full h-full">
+              <div className="flex flex-row gap-2 w-full h-full">
+                <SatData />
+                <InstrumentData />
+                <SW />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </SatelliteContext.Provider>
+    </NoradIdContext.Provider>
   );
 };
 

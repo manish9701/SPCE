@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { DateRange } from 'react-day-picker';
-import BackButton from '../components/Common/Backbutton';
 import Calender from '../components/Common/Calender';
 import 'react-day-picker/dist/style.css';
 import SatConfigSelector from '../components/Common/SatConfigSelector';
 import { differenceInDays } from 'date-fns';
+/* import { ReactComponent as Closebutton } from '../../src/assets/close_small.svg'; */
+import { motion } from 'framer-motion';
 
+interface BillingInfo {
+    selectedOrbit: string;
+    selectedDownlinkRate: string;
+    dateRange?: DateRange;
+    duration: number;
+    totalCost: number;
+}
 
-const SatConfirm: React.FC = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { satellite } = location.state as { satellite: any };
+interface SatConfirmProps {
+    satellite: any;
+    onClose: () => void;
+    onBillingUpdate: (info: BillingInfo) => void;
+}
+
+const SatConfirm: React.FC<SatConfirmProps> = ({ satellite, onClose, onBillingUpdate }) => {
     const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
     const [satelliteConfig, setSatelliteConfig] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -90,95 +100,78 @@ const SatConfirm: React.FC = () => {
     const handleCalendarDisabledClick = () => {
         setError('Please select an orbit and downlink rate before choosing dates.');
     };
+    
 
-    const handleSelect = () => {
-        if (!selectedOrbit || !selectedDownlinkRate || !dateRange) {
-            setError('Please select an orbit, downlink rate, and date range before confirming.');
-            return;
-        }
-        console.log('Selected Date Range:', dateRange);
-        console.log('Selected Orbit:', selectedOrbit);
-        console.log('Selected Downlink Rate:', selectedDownlinkRate);
-        console.log('Total Cost:', totalCost);
-        navigate('/dashboard');
-    };
+    // Update billing info whenever relevant values change
+    useEffect(() => {
+        onBillingUpdate({
+            selectedOrbit,
+            selectedDownlinkRate,
+            dateRange,
+            duration: getDaysInRange(dateRange),
+            totalCost
+        });
+    }, [selectedOrbit, selectedDownlinkRate, dateRange, totalCost, onBillingUpdate]);
 
     if (loading) {
         return <div>Loading...</div>;
     }
 
     return (
-        <div className="flex flex-col p-4 h-full">
-            <h1 className="font-mono text-xl font-medium flex items-center mb-4">
-                <BackButton />
-                {satellite?.name} Satellite Configuration
-            </h1>
-
-            <div className="flex flex-grow w-full h-full">
-                <div className="flex-grow bg-zinc-200 p-2 rounded-sm mr-4 w-4/5 h-full">
-                    <div className="flex flex-row gap-2 w-full h-full">
-                        <div className="w-1/2 h-full flex flex-col">
-                            <SatConfigSelector
-                                satellite={satelliteConfig}
-                                selectedOrbit={selectedOrbit}
-                                setSelectedOrbit={handleOrbitChange}
-                                selectedDownlinkRate={selectedDownlinkRate}
-                                setSelectedDownlinkRate={handleDownlinkRateChange}
-                                downlinkRates={satelliteConfig?.downlinkRates || []}
-                                error={error} // Pass the error prop here
-                            />
-                        </div>
-                        <div className="bg-white text-black p-4 rounded-sm flex-1 w-1/2">
-                            <Calender 
-                                onChange={handleDateRangeChange}
-                                value={dateRange}
-                                disabled={!selectedOrbit || !selectedDownlinkRate} // Add this line
-                                onDisabledClick={handleCalendarDisabledClick} // Add this line
-                            />
-                        </div>
-                    </div>
-                </div>
-                <div id="pricing" className="flex flex-col justify-between w-1/5 text-white text-sm">
-                    <div>
-                        <h2 className="text-lg font-semibold mb-4">Billing Summary</h2>
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <span>Selected Orbit:</span>
-                                <span className="font-medium">{selectedOrbit || 'Not selected'}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Downlink Rate:</span>
-                                <span className="font-medium">{selectedDownlinkRate || 'Not selected'}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Duration:</span>
-                                <span className="font-medium">{getDaysInRange(dateRange)} days</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Date Range:</span>
-                                <span className="font-medium">
-                                    {dateRange?.from?.toDateString()} - {dateRange?.to?.toDateString() || 'Not selected'}
-                                </span>
-                            </div>
-                            <div className="border-t border-gray-600 my-2 pt-2">
-                                <div className="flex justify-between text-lg font-semibold">
-                                    <span>Total Cost:</span>
-                                    <span>${totalCost.toFixed(2)}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="mt-4">
-                        <p className="text-xs mb-4">
-                            Our Earth observation satellites are equipped with high-resolution imaging and advanced sensors, ideal for monitoring environmental changes, disaster management, agriculture, urban planning, and climate studies.
-                        </p>
-                        <button 
-                            onClick={handleSelect} 
-                            className="bg-blue-500 text-white p-2 rounded-lg w-full hover:bg-blue-600 transition-colors duration-200"
+        <div className="absolute inset-0 bg-zinc-200 p-2 rounded-sm w-full h-full flex flex-col">
+            <div className="flex   justify-between items-center py-2  bg-white text-black border-b border-gray-200">
+                
+                    <h1 className=" text-base font-medium uppercase tracking-tight ml-2 ">
+                        {satellite?.name} Configuration
+                    </h1>
+                    <motion.button 
+                        onClick={onClose}
+                        className="bg-black text-white h-8 w-8 text-xs font-mono rounded-sm hover:bg-red-500 transition-colors mr-2 flex items-center justify-center"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                    >
+                        <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            className="h-4 w-4 text-white rotate-45" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor"
                         >
-                            Confirm Selection
-                        </button>
-                    </div>
+                            <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth={2} 
+                                d="M12 4v16m8-8H4" 
+                            />
+                        </svg>
+                    </motion.button>
+                
+            </div>
+
+            <div className="flex   w-full h-full flex-1 ">
+                <div className="w-1/2 h-full bg-white  p-4 border-r border-gray-200 ">
+                    <SatConfigSelector
+                        satellite={satelliteConfig}
+                        selectedOrbit={selectedOrbit}
+                        setSelectedOrbit={handleOrbitChange}
+                        selectedDownlinkRate={selectedDownlinkRate}
+                        setSelectedDownlinkRate={handleDownlinkRateChange}
+                        downlinkRates={satelliteConfig?.downlinkRates || []}
+                        error={error}
+                    />
+                </div>
+                <div className="w-1/2 h-full bg-white p-4 ">
+                    <Calender 
+                        onChange={handleDateRangeChange}
+                        value={dateRange}
+                        disabled={!selectedOrbit || !selectedDownlinkRate}
+                        onDisabledClick={handleCalendarDisabledClick}
+                    />
+                    {error && (
+                        <div className="text-red-500 text-sm mt-2">
+                            {error}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

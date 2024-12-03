@@ -1,0 +1,129 @@
+{
+    "asset": {
+        "version": "2.0",
+        "generator": "Open Asset Import Library (assimp v5.4.0)"
+    },
+    "extensionsUsed": [
+        "KHR_materials_volume",
+        "FB_ngon_encoding"
+    ],
+    "accessors": [
+        {
+            "bufferView": 0,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 26694,
+            "type": "VEC3",
+            "max": [
+                35.036685943603516,
+                72.42729187011719,
+                35.036685943603516
+            ],
+            "min": [
+                -35.036685943603516,
+                -0.5,
+                -35.036685943603516
+            ]
+        },
+        {
+            "bufferView": 1,
+            "byteOffset": 0,
+            "componentType": 5126,
+            "count": 26694,
+            "type": "VEC3",
+            "max": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "min": [
+                -1.0,
+                -1.0,
+                -1.0
+            ]
+        },
+        {
+            "bufferView": 2,
+            "byteOffset": 0,
+            "componentType": 5125,
+            "count": 99408,
+            "type": "SCALAR",
+            "max": [
+                26693
+            ],
+            "min": [
+                0
+            ]
+        }
+    ],
+    "buffers": [
+        {
+            "byteLength": 1038288,
+            "uri": "dish_0.bin"
+        }
+    ],
+    "bufferViews": [
+        {
+            "buffer": 0,
+            "byteOffset": 0,
+            "byteLength": 320328,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 320328,
+            "byteLength": 320328,
+            "target": 34962
+        },
+        {
+            "buffer": 0,
+            "byteOffset": 640656,
+            "byteLength": 397632,
+            "target": 34963
+        }
+    ],
+    "materials": [
+        {
+            "name": "Mat_1"
+        }
+    ],
+    "meshes": [
+        {
+            "name": "meshes[0]",
+            "primitives": [
+                {
+                    "mode": 4,
+                    "material": 0,
+                    "indices": 2,
+                    "attributes": {
+                        "POSITION": 0,
+                        "NORMAL": 1
+                    }
+                }
+            ]
+        }
+    ],
+    "nodes": [
+        {
+            "name": "dish",
+            "children": [
+                1
+            ]
+        },
+        {
+            "name": "DSN_70_m_3D_model",
+            "mesh": 0,
+            "extras": {
+                "name": "DSN_70_m_3D_model"
+            }
+        }
+    ],
+    "scenes": [
+        {
+            "nodes": [
+                0
+            ]
+        }
+    ],
+    "scene": 0
+}

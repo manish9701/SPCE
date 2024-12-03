@@ -29,16 +29,23 @@ const SatConfigSelector: React.FC<SatConfigSelectorProps> = ({
 	const DownlinkCost = satellite.DownlinkCost || {};
 
 	return (
-		<div className="bg-white p-4 rounded-sm text-black flex flex-col h-full">
-			<div className='flex flex-col w-full h-1/2 justify-between items-center mb-4'>
-				<img src={satellite.Image} alt={satellite.name} className="w-1/2 h-full object-contain " />
-				<h2 className="text-base text-black font-medium uppercase w-1/2 text-center">{satellite?.name}</h2>
+		<div className="bg-white p-2 rounded-sm text-black flex flex-col h-full">
+			<div className='flex flex-col flex-1 w-full  items-center '>
+				<img src={satellite.Image} alt={satellite.name} className="w-1/2 h-full object-contain  " />
+				
 			</div>
 
-			<div className="flex flex-col justify-between text-xs w-full h-1/2">
+			<div className="flex flex-col justify-between text-xs w-full ">
 				<div>
 					<h3 className="font-semibold mt-2">Select Orbit:</h3>
-					<p className="text-xs text-gray-500 mb-2">*LEO: ${costPerDay.LEO}/day, SSO: ${costPerDay.SSO}/day</p>
+					<p className="text-xs text-gray-500 mb-2">
+						{Object.entries(costPerDay).map(([orbit, cost], index) => (
+							<span key={orbit}>
+								*{orbit}: ${costPerDay[orbit]}/day
+								{index < Object.entries(costPerDay).length - 1 ? ', ' : ''}
+							</span>
+						))}
+					</p>
 					<div className="flex rounded-full overflow-hidden border border-gray-300">
 						{orbitTypes.map((orbit: string, index: number) => (
 							<button

@@ -4,6 +4,15 @@
 
     "Earth Observation": {
       "image": "/images/EO.gif",
+      "Description": "Our Earth observation satellites are equipped with high-resolution imaging and advanced sensors, ideal for monitoring environmental changes, disaster management, agriculture, urban planning, and climate studies. Utilize these satellites to capture detailed imagery and valuable data from space, empowering you to make informed decisions and drive impactful projects.",
+
+      "NoradID":{
+        "LEO": [44925, 27424, 25994, 20580, 40697],
+        "SSO": [39084, 39634, 32382, 40115, 38755],
+        "GEO": [41866, 28628, 38885, 42432, 37834],
+        "POLAR":[33591, 37849, 43613, 36508, 11080]
+      },
+      
       "Nano": {
         "Image": "/satsimage/Nano.png",
         "OrbitType": "LEO, SSO",
@@ -24,7 +33,19 @@
         "CostPerDay":{
               "LEO": "150",
               "SSO": "250"
-            }
+            },
+
+        "Manufacturer": {
+          "Nanoavionics": "/smimages/airbus.png",
+          "Spaceforge": "/smimages/spaceforge.png"
+        },
+
+        "CurrentFleet": {
+          "In-Orbit": "70",
+          "Scheduled": "50"
+        }
+
+            
         
       },
 
@@ -52,9 +73,17 @@
         },
 
       "CostPerDay":{
-        "LEO": "$250",
-        "Polar": "$350",
-        "SSO": "$450"
+        "LEO": "250",
+        "POLAR": "350",
+        "SSO": "450"
+      },
+      "Manufacturer": {
+        "Lm-logo": "/smimages/lm-logo.png ",
+        "Boeing": "/smimages/boeing.png"
+      },
+      "CurrentFleet": {
+        "In-Orbit": "50",
+        "Scheduled": "20"
       }
         
       },
@@ -81,10 +110,20 @@
         },
 
         "CostPerDay":{
-          "LEO": "$350",
-          "Polar":"$450",
-          "SSO": "$550",
-          "GEO": "$650"
+          "LEO": "350",
+          "POLAR":"450",
+          "SSO": "550",
+          "GEO": "650"
+        },
+        
+        "Manufacturer": {
+          "Northrop_Grumman": "/smimages/NG.png",
+          "Maxar": "/smimages/maxar.png"
+        },
+
+        "CurrentFleet": {
+          "In-Orbit": "20",
+          "Scheduled": "30"
         }
         
       }
@@ -117,7 +156,7 @@
       "image": "/images/EO.gif"
     }, 
 
-    "Education & Resesrach": {
+    "Education & Research": {
       "image": "/images/EO.gif"
     }, 
 
@@ -125,7 +164,7 @@
       "image": "/images/EO.gif"
     },
 
-    "Scientific Resesrach": {
+    "Scientific Research": {
       "image": "/images/EO.gif"
     }
   }

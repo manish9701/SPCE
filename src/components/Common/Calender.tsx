@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { DayPicker, DateRange } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import { addDays, addMonths, addYears, differenceInDays, startOfToday } from 'date-fns';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface CalenderProps {
     onChange: (dateRange: DateRange | undefined) => void;
@@ -9,6 +10,78 @@ interface CalenderProps {
     disabled: boolean;
     onDisabledClick: () => void;
 }
+
+const NumberAnimation = ({ value }: { value: number }) => (
+    <AnimatePresence mode="wait">
+        <motion.span
+            key={value}
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -10, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="text-2xl font-semibold"
+        >
+            {value}
+        </motion.span>
+    </AnimatePresence>
+);
+
+// Extract common button styles
+const buttonBaseStyles = "p-3 rounded-sm border border-gray-200 hover:bg-gray-50 active:bg-gray-100";
+const disabledStyles = "opacity-50 cursor-not-allowed";
+
+// Extract SVG components for reusability
+const ChevronLeft = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" 
+        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M15 18l-6-6 6-6"/>
+    </svg>
+);
+
+const ChevronRight = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" 
+        stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 18l6-6-6-6"/>
+    </svg>
+);
+
+// Simplified DurationControl component
+const DurationControl = ({ 
+    value, 
+    label, 
+    onIncrement, 
+    onDecrement, 
+    disabled 
+}: { 
+    value: number;
+    label: string;
+    onIncrement: () => void;
+    onDecrement: () => void;
+    disabled: boolean;
+}) => (
+    <div className="flex items-center justify-center gap-3">
+        <button 
+            onClick={onDecrement}
+            className={`${buttonBaseStyles} ${disabled ? disabledStyles : ''}`}
+            disabled={disabled}
+        >
+            <ChevronLeft />
+        </button>
+        
+        <div className="flex flex-col items-center w-16">
+            <NumberAnimation value={value} />
+            <span className="text-xs text-gray-500 uppercase mt-1">{label}</span>
+        </div>
+
+        <button 
+            onClick={onIncrement}
+            className={`${buttonBaseStyles} ${disabled ? disabledStyles : ''}`}
+            disabled={disabled}
+        >
+            <ChevronRight />
+        </button>
+    </div>
+);
 
 const Calender: React.FC<CalenderProps> = ({ onChange, value, disabled, onDisabledClick }) => {
     const [durationValues, setDurationValues] = useState({ days: 0, months: 0, years: 0 });
@@ -20,7 +93,7 @@ const Calender: React.FC<CalenderProps> = ({ onChange, value, disabled, onDisabl
             onDisabledClick();
             return;
         }
-        const newDurationValues = { ...durationValues, [type]: inputValue };
+        const newDurationValues = { ...durationValues, [type]: Math.max(0, inputValue) };
         setDurationValues(newDurationValues);
         updateDateRange(newDurationValues);
     };
@@ -62,13 +135,25 @@ const Calender: React.FC<CalenderProps> = ({ onChange, value, disabled, onDisabl
         }
     }, [value]);
 
+    // Helper function to create duration controls
+    const renderDurationControl = (type: 'days' | 'months' | 'years') => (
+        <DurationControl
+            value={durationValues[type]}
+            label={type}
+            onIncrement={() => handleDurationChange(type, durationValues[type] + 1)}
+            onDecrement={() => handleDurationChange(type, durationValues[type] - 1)}
+            disabled={disabled}
+        />
+    );
+
     return (
-        <div className="flex flex-col items-center w-full">
+        <div className="flex flex-col  w-full text-black">
             <h2 className="text-lg font-semibold mb-4">Select Rental Period</h2>
             <div className="flex flex-row items-start w-full">
                 <div className="mr-4 flex-1">
                     <DayPicker
                         mode="range"
+                        showOutsideDays
                         selected={value}
                         onSelect={(newValue) => {
                             if (!disabled) {
@@ -78,13 +163,24 @@ const Calender: React.FC<CalenderProps> = ({ onChange, value, disabled, onDisabl
                                 }
                             }
                         }}
+
+                        classNames={{
+                            selected: 'bg-black  ',
+                            today: 'font-bold  bg-zinc-100 rounded-full ',
+                            range_start: 'bg-black rounded-l-sm text-white ',
+                            range_middle: 'text-black bg-zinc-100 ',
+                            range_end: 'bg-black rounded-r-sm text-white ',             
+                            chevron: 'text-black ',
+                        }}
+                        
                         disabled={{ before: today, ...(disabled ? { after: today } : {}) }}
-                        fromDate={today}
-                        toDate={addYears(today, 10)}
+                        
                         month={month}
                         onMonthChange={setMonth}
                         numberOfMonths={1}
                         className={`border border-gray-300 rounded p-2 ${disabled ? 'opacity-50' : ''}`}
+                        
+                        
                     />
                     {!value && <p className="text-sm text-gray-600 mt-2">* Select a start date on the calendar</p>}
                     {value && value.from && (
@@ -94,45 +190,17 @@ const Calender: React.FC<CalenderProps> = ({ onChange, value, disabled, onDisabl
                         </p>
                     )}
                 </div>
-                <div className="flex flex-col flex-1">
-                    <div className="flex flex-col space-y-2 mb-4">
-                        <div className="flex items-center justify-between">
-                            <input
-                                type="number"
-                                value={durationValues.days}
-                                onChange={(e) => handleDurationChange('days', Math.max(0, parseInt(e.target.value) || 0))}
-                                className={`border border-gray-300 rounded px-2 py-1 w-16 mr-1 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                min="0"
-                                disabled={disabled}
-                            />
-                            <span className="text-sm">Days</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <input
-                                type="number"
-                                value={durationValues.months}
-                                onChange={(e) => handleDurationChange('months', Math.max(0, parseInt(e.target.value) || 0))}
-                                className={`border border-gray-300 rounded px-2 py-1 w-16 mr-1 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                min="0"
-                                disabled={disabled}
-                            />
-                            <span className="text-sm">Months</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <input
-                                type="number"
-                                value={durationValues.years}
-                                onChange={(e) => handleDurationChange('years', Math.max(0, parseInt(e.target.value) || 0))}
-                                className={`border border-gray-300 rounded px-2 py-1 w-16 mr-1 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                min="0"
-                                disabled={disabled}
-                            />
-                            <span className="text-sm">Years</span>
-                        </div>
+                <div className="flex flex-col flex-1 w-full">
+                    <div className="flex flex-col space-y-6 mb-4 ">
+                        {renderDurationControl('days')}
+                        {renderDurationControl('months')}
+                        {renderDurationControl('years')}
                     </div>
+
                     <button 
                         onClick={handleReset} 
-                        className={`px-3 py-1 bg-red-500 text-white rounded text-sm w-full ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-600'}`}
+                        className={`px-2 py-1  bg-red-500 text-white  text-sm 
+                            ${disabled ? disabledStyles : 'hover:bg-red-600'}`}
                         disabled={disabled}
                     >
                         Reset
