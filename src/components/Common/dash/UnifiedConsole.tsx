@@ -63,6 +63,206 @@ const availableCommands: CommandType[] = [
   }
 ];
 
+// Update the validation function to check for the specific code "000000"
+const validateConfirmationCode = (code: string): boolean => {
+  return code === '000000';
+};
+
+// Update the MenuTitle component
+const MenuTitle: React.FC<{
+  title: string;
+  onCancel: () => void;
+  onExecute: () => void;
+  showAdvanced?: boolean;
+  onAdvanced?: () => void;
+  isExecuteDisabled?: boolean;
+  executeError?: string;
+}> = ({ title, onCancel, onExecute, showAdvanced, onAdvanced, isExecuteDisabled, executeError }) => (
+  <div className="text-sm font-medium p-2 border-b flex justify-between items-center">
+    <span>{title}</span>
+    <div className="flex space-x-3 items-center">
+      {executeError && (
+        <span className="text-[10px] text-red-500">{executeError}</span>
+      )}
+      {showAdvanced && (
+        <button 
+          onClick={onAdvanced}
+          className="px-2 py-1 text-xs border border-gray-300 hover:bg-gray-50"
+        >
+          ADVANCED
+        </button>
+      )}
+      <button 
+        onClick={onCancel}
+        className="px-2 py-1 text-xs border border-gray-300 hover:bg-gray-50 hover:text-white hover:bg-red-500 transition-colors"
+      >
+        CANCEL
+      </button>
+      <button 
+        onClick={onExecute}
+        disabled={isExecuteDisabled}
+        className={`px-2 py-1 text-xs border border-gray-300 transition-colors ${
+          isExecuteDisabled 
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+            : 'hover:bg-black hover:text-white'
+        }`}
+      >
+        EXECUTE
+      </button>
+    </div>
+  </div>
+);
+
+// Add a PIN input component
+const PinInput: React.FC<{
+  value: string;
+  onChange: (value: string) => void;
+}> = ({ value, onChange }) => {
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const handleChange = (index: number, value: string) => {
+    if (value.length <= 1 && /^[0-9]$/.test(value || '')) {
+      const newPin = Array.from(inputRefs.current).map((input, i) => 
+        i === index ? value : (input?.value || '')
+      ).join('');
+      onChange(newPin);
+      
+      // Move to next input
+      if (value && index < 5) {
+        inputRefs.current[index + 1]?.focus();
+      }
+    }
+  };
+
+  return (
+    <div className="flex space-x-2">
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <input
+          key={i}
+          ref={el => inputRefs.current[i] = el}
+          type="text"
+          maxLength={1}
+          value={value[i] || ''}
+          onChange={(e) => handleChange(i, e.target.value)}
+          className=" text-center  rounded text-xs "
+        />
+      ))}
+    </div>
+  );
+};
+
+const SelectableButtonGroup: React.FC<{
+  label: string;
+  value: string;
+  options: string[];
+  onChange: (value: string) => void;
+  multiSelect?: boolean;
+}> = ({ label, value, options, onChange, multiSelect }) => {
+  const [isHovered, setIsHovered] = useState(false);
+  const [showNumberInput, setShowNumberInput] = useState(false);
+  const [timeValue, setTimeValue] = useState('24');
+  const selectedValues = value.split('/').map(v => v.trim());
+
+  const handleSelection = (option: string) => {
+    if (option === 'HOUR' || option === 'DAY') {
+      setShowNumberInput(true);
+      onChange(`${timeValue} ${option}S`);
+      return;
+    }
+
+    if (!multiSelect) {
+      onChange(option);
+      setShowNumberInput(false);
+      setIsHovered(false);
+      return;
+    }
+
+    let newValue: string[];
+    if (selectedValues.includes(option)) {
+      newValue = selectedValues.filter(v => v !== option);
+    } else {
+      newValue = [...selectedValues, option];
+    }
+    
+    if (newValue.length > 0) {
+      onChange(newValue.join(' /'));
+    }
+  };
+
+  const handleTimeChange = (newValue: string) => {
+    const numValue = parseInt(newValue);
+    if (!isNaN(numValue) && numValue > 0) {
+      setTimeValue(newValue);
+      const unit = value.includes('HOUR') ? 'HOURS' : 'DAYS';
+      onChange(`${newValue} ${unit}`);
+    }
+  };
+
+  return (
+    <div 
+      className="p-2 relative"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="text-[10px] text-gray-400 uppercase">{label}</div>
+      <div className="text-xs ">{value}</div>
+      
+      {isHovered && (
+        <div className="absolute top-0 left-0 w-full h-full p-2 bg-white flex flex-col justify-center items-center">
+          {showNumberInput ? (
+            <div className="flex p-0.5 bg-black rounded-[9px] justify-between items-center gap-0.5 h-full">
+              <div className="bg-white h-full rounded-[7px]  flex items-center justify-center">
+                <input
+                  type="number"
+                  value={timeValue}
+                  onChange={(e) => handleTimeChange(e.target.value)}
+                  className="w-full  px-1 py-1 text-center text-[10px] font-medium rounded-[7px] "
+                  min="1"
+                />
+              </div>
+              <div className="bg-white rounded-[7px] h-full w-full  flex items-center justify-center">
+                <div className="text-black text-[10px] font-medium uppercase">
+                  {value.includes('HOUR') ? 'HOURS' : 'DAYS'}
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowNumberInput(false);
+                  setIsHovered(false);
+                }}
+                className=" h-full px-2   bg-red-500 text-white rounded-[7px] flex items-center justify-center"
+              >
+                <div className="text-center text-[10px] font-medium">
+                  ✕
+                </div>
+              </button>
+            </div>
+          ) : (
+            <div className="flex w-full p-0.5 bg-black rounded-[9px] justify-center items-center gap-0.5 h-full">
+              {options.map((option) => (
+                <button
+                  key={option}
+                  onClick={() => handleSelection(option)}
+                  className={`
+                    w-full rounded-[7px] flex items-center h-full justify-center
+                    ${selectedValues.includes(option) 
+                      ? 'bg-white text-black border border-black/5' 
+                      : 'bg-transparent text-white'}
+                  `}
+                >
+                  <div className="text-center text-[10px] font-medium">
+                    {option}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const UnifiedConsole: React.FC = () => {
   // State for logs
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -268,73 +468,11 @@ const UnifiedConsole: React.FC = () => {
     </div>
   );
 
-  // Separate Button Component using DataDisplay layout
-  const CommandButton = ({ 
-    label,
-    value,
-    variant = 'primary',
-    onClick,
-    isReboot = false
-  }: { 
-    label: string,
-    value: string,
-    variant?: 'primary' | 'danger' | 'secondary',
-    onClick: () => void,
-    isReboot?: boolean
-  }) => {
-    const baseStyles = "px-3 py-1.5 rounded-md transition-colors duration-200";
-    const variantStyles = {
-      primary: "bg-blue-500 hover:bg-blue-600",
-      danger: "bg-red-500 hover:bg-red-600",
-      secondary: "bg-gray-800 hover:bg-gray-700"
-    };
-
-    return (
-      <button 
-        className={`${baseStyles} ${variantStyles[variant]}`}
-        onClick={onClick}
-      >
-        <div className='flex flex-col justify-between'>
-          <div className={`text-[10px] font-normal ${isReboot ? 'text-white' : 'text-gray-500'}`}>
-            {label}
-          </div>
-          <div className="flex items-center">
-            <span className={`text-base font-semibold uppercase mr-2 ${isReboot ? 'text-white' : 'text-gray-500'}`}>
-              {value}
-            </span>
-          </div>
-        </div>
-      </button>
-    );
-  };
-
-  // Update the renderCommandButtons function
-  const renderCommandButtons = () => (
-    <div className="mt-3 flex justify-center space-x-4">
-      <CommandButton
-        label="Cancel Operation"
-        value="Cancel"
-        variant="secondary"
-        onClick={() => {
-          setSelectedCommand('');
-          setCommandParams({});
-        }}
-      />
-      <CommandButton
-        label={selectedCommand === 'SYSTEM_REBOOT' ? 'Confirm Reboot' : 'Execute Command'}
-        value="Execute"
-        variant={selectedCommand === 'SYSTEM_REBOOT' ? 'danger' : 'primary'}
-        onClick={addCommand}
-        isReboot={selectedCommand === 'SYSTEM_REBOOT'}
-      />
-    </div>
-  );
-
   // Function to render command interface
   const renderCommandInterface = () => (
-    <div className="py-2 h-full">
+    <div className=" h-full">
       {!selectedCommand ? (
-        <div className="grid grid-cols-4 justify-items-center">
+        <div className=" mt-2 grid grid-cols-4 justify-items-center">
           {availableCommands.map((cmd, index) => (
             <div
               key={cmd.name}
@@ -356,304 +494,234 @@ const UnifiedConsole: React.FC = () => {
         </div>
       ) : (
         <div className="h-full flex flex-col">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2">
-              <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
-              <span className="text-xs font-medium text-gray-300">
-                {availableCommands.find(cmd => cmd.name === selectedCommand)?.displayName}
-              </span>
-            </div>
-            <button
-              onClick={() => {
-                setSelectedCommand('');
-                setCommandParams({});
-              }}
-              className="text-gray-500 hover:text-gray-400"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
-          </div>
+          
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1">
             {selectedCommand === 'SYSTEM_STATUS' && (
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-2">
-                  {['all', 'power', 'thermal', 'comms', 'payload'].map(component => (
+              <div className="flex flex-col h-full">
+                <MenuTitle 
+                  title="SYSTEM STATUS"
+                  onCancel={() => {
+                    setSelectedCommand('');
+                    setCommandParams({});
+                  }}
+                  onExecute={addCommand}
+                />
+                
+                <div className="flex border-b ">
+                  {[
+                    { num: '1.', label: 'ALL' },
+                    { num: '2.', label: 'POWER' },
+                    { num: '3.', label: 'THERMAL' },
+                    { num: '4.', label: 'COMMS' },
+                    { num: '5.', label: 'INSTRUMENTS' }
+                  ].map((item) => (
                     <div
-                      key={component}
-                      onClick={() => setCommandParams({ component })}
+                      key={item.label}
+                      onClick={() => setCommandParams({ component: item.label.toLowerCase() })}
                       className={`
-                        cursor-pointer
-                        ${commandParams.component === component 
-                          ? 'bg-blue-500/10 border-blue-500/50' 
-                          : 'bg-gray-800/50 border-gray-700 hover:border-gray-600'}
-                        border rounded-md p-2
-                        transition-colors duration-200
+                        flex-1 p-2 cursor-pointer border-r last:border-r-0
+                        ${commandParams.component === item.label.toLowerCase() 
+                          ? 'bg-gray-100' 
+                          : 'hover:bg-gray-50'}
                       `}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-[0.65rem] font-medium">
-                          {component.toUpperCase()}
-                        </span>
-                        {commandParams.component === component && (
-                          <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                        )}
-                      </div>
-                      <div className="mt-2">
-                        <div className="h-1 bg-gray-700 rounded-full overflow-hidden">
-                          <div 
-                            className="h-full bg-blue-500/50 rounded-full"
-                            style={{ width: `${Math.random() * 100}%` }}
-                          />
-                        </div>
-                      </div>
+                      <div className="text-[10px] text-gray-500">{item.num}</div>
+                      <div className="text-xs font-semibold">{item.label}</div>
                     </div>
                   ))}
                 </div>
 
-                {commandParams.component && (
-                  <div className="bg-gray-800/50 rounded-md p-2 border border-gray-700">
-                    <div className="text-[0.65rem] text-gray-400 mb-2">
-                      System Metrics
-                    </div>
-                    <div className="space-y-1.5">
-                      {['CPU Usage', 'Memory', 'Temperature', 'Power Draw'].map(metric => (
-                        <div key={metric} className="flex items-center justify-between">
-                          <span className="text-[0.6rem] text-gray-500">{metric}</span>
-                          <span className="text-[0.6rem] text-gray-300">
-                            {Math.floor(Math.random() * 100)}%
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <div className="flex-grow"></div>
               </div>
             )}
 
             {selectedCommand === 'SYSTEM_DIAGNOSTICS' && (
-              <div className="space-y-3">
-                <div className="grid grid-cols-3 gap-2">
-                  {['basic', 'advanced', 'full'].map(level => (
+              <div className="flex flex-col h-full">
+                <MenuTitle 
+                  title="SYSTEM DIAGNOSTICS"
+                  onCancel={() => {
+                    setSelectedCommand('');
+                    setCommandParams({});
+                  }}
+                  onExecute={addCommand}
+                />
+                
+                <div className="flex border-b">
+                  {[
+                    { num: '1.', label: 'BASIC', time: '30s' },
+                    { num: '2.', label: 'ADVANCED', time: '120s' },
+                    { num: '3.', label: 'FULL', time: '300s' }
+                  ].map((item) => (
                     <div
-                      key={level}
-                      onClick={() => setCommandParams(prev => ({ ...prev, level }))}
+                      key={item.label}
+                      onClick={() => setCommandParams(prev => ({ 
+                        ...prev, 
+                        level: item.label.toLowerCase(),
+                        timeout: item.time.replace('s', '') 
+                      }))}
                       className={`
-                        cursor-pointer
-                        ${commandParams.level === level 
-                          ? 'bg-blue-500/10 border-blue-500/50' 
-                          : 'bg-gray-800/50 border-gray-700 hover:border-gray-600'}
-                        border rounded-md p-2
-                        transition-colors duration-200
+                        flex-1 p-2 cursor-pointer border-r last:border-r-0
+                        ${commandParams.level === item.label.toLowerCase() 
+                          ? 'bg-gray-100' 
+                          : 'hover:bg-gray-50'}
                       `}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-[0.65rem] font-medium">
-                          {level.toUpperCase()}
-                        </span>
-                        {commandParams.level === level && (
-                          <div className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-                        )}
-                      </div>
+                      <div className="text-[10px] text-gray-500">{item.num}</div>
+                      <div className="text-xs font-semibold">{item.label}</div>
+                      <div className="text-[10px] text-gray-500 mt-1">{item.time}</div>
                     </div>
                   ))}
                 </div>
 
-                <div className="bg-gray-800/50 rounded-md p-2 border border-gray-700">
-                  <div className="text-[0.65rem] text-gray-400 mb-2">
-                    Timeout Duration
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max="300"
-                    step="30"
-                    value={commandParams.timeout || 0}
-                    onChange={(e) => setCommandParams(prev => ({ 
-                      ...prev, 
-                      timeout: e.target.value 
-                    }))}
-                    className="w-full h-1 bg-gray-700 rounded-full appearance-none cursor-pointer"
-                  />
-                  <div className="mt-1 text-right">
-                    <span className="text-[0.6rem] text-gray-400">
-                      {commandParams.timeout || 0}s
-                    </span>
-                  </div>
-                </div>
+                <div className="flex-grow"></div>
               </div>
             )}
 
             {selectedCommand === 'DATA_CAPTURE' && (
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-gray-800/50 rounded-md p-2 border border-gray-700">
-                    <div className="text-[0.65rem] text-gray-400 mb-2">Location</div>
-                    <div className="space-y-2">
-                      <div>
-                        <label className="text-[0.6rem] text-gray-500">Latitude</label>
-                        <input
-                          type="number"
-                          step="0.000001"
-                          value={commandParams.latitude || ''}
-                          onChange={(e) => setCommandParams(prev => ({ 
-                            ...prev, 
-                            latitude: e.target.value 
-                          }))}
-                          className="w-full bg-gray-900 border border-gray-700 rounded-sm px-2 py-1 text-[0.65rem]"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[0.6rem] text-gray-500">Longitude</label>
-                        <input
-                          type="number"
-                          step="0.000001"
-                          value={commandParams.longitude || ''}
-                          onChange={(e) => setCommandParams(prev => ({ 
-                            ...prev, 
-                            longitude: e.target.value 
-                          }))}
-                          className="w-full bg-gray-900 border border-gray-700 rounded-sm px-2 py-1 text-[0.65rem]"
-                        />
-                      </div>
-                    </div>
+              <div className="flex flex-col h-full">
+                <MenuTitle 
+                  title="DATA CAPTURE"
+                  onCancel={() => {
+                    setSelectedCommand('');
+                    setCommandParams({});
+                  }}
+                  onExecute={addCommand}
+                  showAdvanced={true}
+                  onAdvanced={() => {
+                    console.log('Advanced settings clicked');
+                  }}
+                />
+
+                <div className="grid grid-cols-3 border-b">
+                  <div className="p-2 border-r">
+                    <div className="text-[10px] text-gray-400 uppercase">LONGITUDE</div>
+                    <input
+                      type="text"
+                      value={commandParams.longitude ?? ''}
+                      placeholder="-90.3456°W"
+                      onChange={(e) => setCommandParams(prev => ({ 
+                        ...prev, 
+                        longitude: e.target.value 
+                      }))}
+                      className="w-full text-xs mt-1 focus:outline-none"
+                    />
                   </div>
 
-                  <div className="bg-gray-800/50 rounded-md p-2 border border-gray-700">
-                    <div className="text-[0.65rem] text-gray-400 mb-2">Capture Settings</div>
-                    <div className="space-y-2">
-                      <div>
-                        <label className="text-[0.6rem] text-gray-500">Duration (s)</label>
-                        <input
-                          type="number"
-                          min="1"
-                          max="3600"
-                          value={commandParams.duration || ''}
-                          onChange={(e) => setCommandParams(prev => ({ 
-                            ...prev, 
-                            duration: e.target.value 
-                          }))}
-                          className="w-full bg-gray-900 border border-gray-700 rounded-sm px-2 py-1 text-[0.65rem]"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[0.6rem] text-gray-500">Zoom Level (1-10)</label>
-                        <input
-                          type="range"
-                          min="1"
-                          max="10"
-                          value={commandParams.zoom || 1}
-                          onChange={(e) => setCommandParams(prev => ({ 
-                            ...prev, 
-                            zoom: e.target.value 
-                          }))}
-                          className="w-full h-1 bg-gray-700 rounded-full appearance-none cursor-pointer"
-                        />
-                        <div className="text-right text-[0.6rem] text-gray-400">
-                          {commandParams.zoom || 1}x
-                        </div>
-                      </div>
-                    </div>
+                  <div className="p-2 border-r">
+                    <div className="text-[10px] text-gray-400 uppercase">LATITUDE</div>
+                    <input
+                      type="text"
+                      value={commandParams.latitude ?? ''}
+                      placeholder="35.7865°N"
+                      onChange={(e) => setCommandParams(prev => ({ 
+                        ...prev, 
+                        latitude: e.target.value 
+                      }))}
+                      className="w-full text-xs mt-1 focus:outline-none"
+                    />
                   </div>
+
+                  <SelectableButtonGroup
+                    label="DURATION"
+                    value={commandParams.duration || 'FULL'}
+                    options={['HOUR', 'DAY', 'FULL']}
+                    onChange={(value) => setCommandParams(prev => ({ ...prev, duration: value }))}
+                    multiSelect={false}
+                  />
                 </div>
 
-                <div className="bg-gray-800/50 rounded-md p-2 border border-gray-700">
-                  <div className="text-[0.65rem] text-gray-400 mb-2">Resolution</div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {['low', 'medium', 'high'].map(res => (
-                      <div
-                        key={res}
-                        onClick={() => setCommandParams(prev => ({ ...prev, resolution: res }))}
-                        className={`
-                          cursor-pointer
-                          ${commandParams.resolution === res 
-                            ? 'bg-blue-500/10 border-blue-500/50' 
-                            : 'bg-gray-900 border-gray-700 hover:border-gray-600'}
-                          border rounded-sm p-1.5
-                          transition-colors duration-200
-                          text-center
-                        `}
-                      >
-                        <span className="text-[0.65rem] font-medium">
-                          {res.toUpperCase()}
-                        </span>
-                      </div>
-                    ))}
+                <div className="flex flex-row ">
+                  <div className="w-1/3 border-r">
+                  <SelectableButtonGroup
+                    label="SENSOR"
+                    value={commandParams.sensor || 'OPTICAL /RADAR'}
+                    options={['OPTICAL', 'RADAR']}
+                    onChange={(value) => setCommandParams(prev => ({ ...prev, sensor: value }))}
+                    multiSelect={true}
+                  />
+                  </div>
+
+                  <div className="p-2 w-2/3">
+                    <div className="text-[10px] text-gray-400 uppercase w-full flex justify-between">
+                      ZOOM <span className="ml-auto text-black">{commandParams.zoom || '19'}</span>
+                    </div>
+                    <div className="flex items-center mt-2">
+                      <input
+                        type="range"
+                        min="1"
+                        max="20"
+                        value={commandParams.zoom || '19'}
+                        onChange={(e) => setCommandParams(prev => ({ 
+                          ...prev, 
+                          zoom: e.target.value 
+                        }))}
+                        className="w-full h-[2px] bg-gray-200 appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-2 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-red-500 [&::-webkit-slider-thumb]:cursor-pointer"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
             )}
 
             {selectedCommand === 'SYSTEM_REBOOT' && (
-              <div className="space-y-3">
-                <div className="bg-red-500/10 rounded-md p-3 border border-red-500/30">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                    <span className="text-[0.7rem] font-medium text-red-500">
-                      Warning: This action cannot be undone
-                    </span>
-                  </div>
-                  <p className="text-[0.65rem] text-gray-400">
-                    System reboot will terminate all active operations and may cause data loss.
-                  </p>
-                </div>
+              <div className="flex flex-col h-full">
+                <MenuTitle 
+                  title="REBOOT"
+                  onCancel={() => {
+                    setSelectedCommand('');
+                    setCommandParams({});
+                  }}
+                  onExecute={addCommand}
+                  isExecuteDisabled={!validateConfirmationCode(commandParams.confirmCode)}
+                  executeError={
+                    commandParams.confirmCode && !validateConfirmationCode(commandParams.confirmCode)
+                      ? 'Invalid confirmation code'
+                      : undefined
+                  }
+                />
 
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-gray-800/50 rounded-md p-2 border border-gray-700">
-                    <div className="text-[0.65rem] text-gray-400 mb-2">Reboot Mode</div>
-                    <div className="space-y-1">
-                      {['soft', 'hard'].map(mode => (
-                        <div
-                          key={mode}
-                          onClick={() => setCommandParams(prev => ({ ...prev, mode }))}
-                          className={`
-                            cursor-pointer
-                            ${commandParams.mode === mode 
-                              ? 'bg-red-500/10 border-red-500/50' 
-                              : 'bg-gray-900 border-gray-700 hover:border-gray-600'}
-                            border rounded-sm p-1.5
-                            transition-colors duration-200
-                          `}
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-[0.65rem] font-medium">
-                              {mode.toUpperCase()}
-                            </span>
-                            {commandParams.mode === mode && (
-                              <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="bg-gray-800/50 rounded-md p-2 border border-gray-700">
-                    <div className="text-[0.65rem] text-gray-400 mb-2">Safety Code</div>
+                <div className="grid grid-cols-2 border-b">
+                  <div className="p-2 border-r">
+                    <div className="text-[10px] text-gray-400 uppercase mb-2">ENTER MISSION ID</div>
                     <input
                       type="text"
-                      placeholder="Enter confirmation code"
-                      value={commandParams.confirmCode || ''}
+                      value={commandParams.missionId ?? ''}
+                      placeholder="E0.SSO.43567.H.2D"
                       onChange={(e) => setCommandParams(prev => ({ 
                         ...prev, 
-                        confirmCode: e.target.value 
+                        missionId: e.target.value 
                       }))}
-                      className="w-full bg-gray-900 border border-gray-700 rounded-sm px-2 py-1 text-[0.65rem]"
+                      className="w-full text-xs focus:outline-none"
                     />
-                    <div className="mt-1 text-[0.6rem] text-gray-500">
-                      Code format: REBOOT-XXXXXX
+                  </div>
+
+                  <div className="p-2">
+                    <div className="text-[10px] text-gray-400 uppercase mb-2">
+                      ENTER CONFIRMATION CODE
+                    </div>
+                    <PinInput
+                      value={commandParams.confirmCode || ''}
+                      onChange={(value) => setCommandParams(prev => ({ ...prev, confirmCode: value }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="p-1">
+                  <div className="flex items-start space-x-2">
+                    <div>
+                      <svg className="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                    <div className="text-[10px] text-gray-400 uppercase">
+                      SYSTEM REBOOT WILL TERMINATE ALL ACTIVE OPERATIONS
                     </div>
                   </div>
                 </div>
               </div>
             )}
           </div>
-
-          {renderCommandButtons()}
         </div>
       )}
     </div>

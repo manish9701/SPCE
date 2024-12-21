@@ -53,7 +53,7 @@ const InfoRow: React.FC<{ label: string; value: string | null; unit: string; bor
     {!value ? (
       <div className="animate-pulse h-6 bg-gray-200 rounded w-24" />
     ) : (
-      <span className='text-base font-semibold '>{value} {unit}</span>
+      <span className='text-sm font-semibold '>{value} {unit}</span>
     )}
   </div>
 );
@@ -140,11 +140,11 @@ const SW: React.FC = () => {
           {renderScaleSection('Latest Observed', weatherData.scales.latestObserved)}
           {renderScaleSection('Predicted', weatherData.scales.predicted)}
 
-          {/* <div className='flex flex-col text-[10px] font-normal text-gray-500 uppercase'>
+          <div className='flex flex-col text-[8px] font-normal px-2 text-gray-400 uppercase'>
             <span>R:Radio Blackout</span>
             <span>S:Solar Radiation Storms</span>
             <span>G:Geomagnetic Storms</span>
-          </div> */}
+          </div>
         </div>
 
         <div className="flex flex-col border-t border-gray-200">

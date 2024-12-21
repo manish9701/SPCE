@@ -148,7 +148,7 @@ const ConfiguredSatCard = React.memo<ConfiguredSatCardProps>(({ satellite }) => 
             <div className='flex flex-col justify-between'>
                 <div className='text-[10px] font-normal text-gray-500'>{label}</div>
                 <div className="flex items-center">
-                    <span className={`${isDate ? 'text-sm' : 'text-base'} font-semibold uppercase mr-2`}>
+                    <span className={`text-sm font-semibold uppercase mr-2`}>
                         {value}{unit}
                     </span>
                 </div>
@@ -323,10 +323,10 @@ const ConfiguredSatCard = React.memo<ConfiguredSatCardProps>(({ satellite }) => 
         const now = new Date();
         const end = new Date(satellite.endDate);
         
-        // Debug logs
+        /* // Debug logs
         console.log('Satellite:', satellite.name);
         console.log('End Date:', satellite.endDate);
-        console.log('Now:', now.toISOString());
+        console.log('Now:', now.toISOString()); */
         
         const diffTime = end.getTime() - now.getTime();
         const hoursLeft = Math.floor(diffTime / (1000 * 60 * 60));
@@ -448,8 +448,8 @@ const ConfiguredSatCard = React.memo<ConfiguredSatCardProps>(({ satellite }) => 
                                      width="w-1/2" 
                                     border={false}
                                 />
-                                <button className="text-[10px] mr-2 my-4 bg-black text-white px-2 py-1 rounded">
-                                        Download
+                                <button className="text-[10px] mr-2 my-4 bg-black text-white px-2 py-1 ">
+                                        DOWNLOAD
                                     </button>
                             </div>
 
@@ -460,8 +460,8 @@ const ConfiguredSatCard = React.memo<ConfiguredSatCardProps>(({ satellite }) => 
                                      width="w-1/2" 
                                     border={false}
                                 />
-                                <button className="text-[10px] mr-2 my-4 bg-black text-white px-2 py-1 rounded">
-                                        Download
+                                <button className="text-[10px] mr-2 my-4 bg-black text-white px-2 py-1 ">
+                                        DOWNLOAD
                                     </button>
                             </div>
 
@@ -602,7 +602,7 @@ const ConfiguredSatCard = React.memo<ConfiguredSatCardProps>(({ satellite }) => 
                             </div>
                         ) : (
                             // Logs View
-                            <div className="flex flex-col flex-1 h-[168px] overflow-hidden">
+                            <div className="flex flex-col flex-1 h-[165px] overflow-hidden">
                                 <div className="p-2 font-mono text-[10px] space-y-2 ">
                                     {satelliteLogs.map((log, index) => (
                                         <div 

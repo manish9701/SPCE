@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, Suspense, lazy, useContext } from 'react';
 import { motion} from 'framer-motion';
-import { NoradIdContext, SatelliteContext } from '../../pages/dash';
+import { NoradIdContext, SatelliteContext, ExpandedViewContext } from '../../pages/dash';
 import { MdAdd } from "react-icons/md";
 
 
@@ -142,7 +142,7 @@ const SkeletonLoader: React.FC = () => {
             {row.map((item, i) => (
               <div key={i} className={`flex flex-col flex-grow p-2 ${item.border ? 'border-r border-gray-200' : ''} w-1/2`}>
                 <div className="text-[10px] font-normal text-gray-500">{item.label}</div>
-                <div className="h-5 bg-gray-200 animate-pulse rounded mt-1 w-24" />
+                <div className="h-4 bg-gray-200 animate-pulse rounded mt-1 w-24" />
               </div>
             ))}
           </div>
@@ -172,7 +172,7 @@ const DataDisplay = React.memo<{
     {isLoading ? (
       <div className="h-6 bg-gray-200 animate-pulse rounded mt-1 w-24" />
     ) : (
-      <span className='text-base font-semibold uppercase'>{value}{unit}</span>
+      <span className='text-sm font-semibold uppercase'>{value}{unit}</span>
     )}
   </div>
 ));
@@ -181,6 +181,7 @@ const SatData: React.FC = () => {
   const { satData, tleData, isLoading, error } = useSatelliteData();
   const noradId = useContext(NoradIdContext);
   const satelliteData = useContext(SatelliteContext);
+  const { expanded, setExpanded } = useContext(ExpandedViewContext);
 
   const formatTimeOnly = (timestamp: number) => {
     return new Date(timestamp * 1000).toLocaleTimeString([], {
@@ -226,15 +227,16 @@ const SatData: React.FC = () => {
   };
 
   return (
-    <div className="bg-white text-black flex flex-col rounded-sm w-1/3">
+    <div className={`bg-white text-black flex flex-col rounded-sm ${expanded ? 'w-full h-full' : 'w-1/3'}`}>
       <div className="p-2 flex justify-between items-center">
         <h2 className="text-base font-semibold uppercase">
           Satellite Data<span className="text-[10px] font-light text-gray-500"> BY N2YO</span>
         </h2>
         <motion.button 
-          className="bg-black text-white rounded-full size-7 mb-1 hover:bg-black hover:text-white text-black flex items-center justify-center transition-colors duration-200"
+          className="bg-black text-white rounded-full size-7  hover:bg-black hover:text-white text-black flex items-center justify-center transition-colors duration-200"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={() => setExpanded(!expanded)}
         >
           <MdAdd size={18} />
         </motion.button>
@@ -246,85 +248,131 @@ const SatData: React.FC = () => {
         <SkeletonLoader />
       ) : (
         <>
-          <div className="h-1/2 border-y border-gray-200">
+          <div className={`${expanded ? 'h-full' : 'h-1/2'} border-y border-gray-300`}>
             {memoizedMap}
           </div>
           
-          <div className="flex flex-col">
-            <div className="flex flex-row justify-between border-b border-gray-200">
-              <DataDisplay 
-                label="TIMESTAMP" 
-                value={satData?.positions[0]?.timestamp ? formatTimeOnly(satData.positions[0].timestamp) : null}
-                width="w-1/2" 
-                border={true}
-                isLoading={isLoading}
-              />
-              <DataDisplay 
-                label="ALTITUDE [km]" 
-                value={satData.positions[0].sataltitude.toFixed(2)}
-                width="w-1/2" 
-                border={false} 
-              />
-            </div>
+          {expanded ? (
+            <>
+              <div className="flex flex-row border-b border-gray-200">
+                {[
+                  { label: "TIMESTAMP", value: formatTimeOnly(satData.positions[0].timestamp) },
+                  { label: "ALTITUDE", value: `${satData.positions[0].sataltitude.toFixed(2)} KM` },
+                  { label: "LATITUDE", value: `${satData.positions[0].satlatitude.toFixed(2)}°` },
+                  { label: "LONGITUDE", value: `${satData.positions[0].satlongitude.toFixed(2)}°` },
+                  { label: "AZIMUTH", value: `${satData.positions[0].azimuth.toFixed(1)}°` },
+                  { label: "ELEVATION", value: `${satData.positions[0].elevation.toFixed(1)}°` },
+                  { label: "RIGHT ASCENSION", value: formatRA(satData.positions[0].ra) },
+                  { label: "DECLINATION", value: formatDec(satData.positions[0].dec) }
+                ].map((item, index) => (
+                  <DataDisplay 
+                    key={item.label}
+                    label={item.label} 
+                    value={item.value}
+                    width="w-[12.5%]" 
+                    border={index < 7}
+                  />
+                ))}
+              </div>
 
-            <div className="flex flex-row justify-between border-b border-gray-200">
-              <DataDisplay 
-                label="LATITUDE" 
-                value={satData.positions[0].satlatitude.toFixed(2)} 
-                unit="° N" 
-                width="w-1/2" 
-                border={true} 
-              />
-              <DataDisplay 
-                label="LONGITUDE" 
-                value={satData.positions[0].satlongitude.toFixed(2)} 
-                unit="° W" 
-                width="w-1/2" 
-                border={false} 
-              />
-            </div>
+              <div className="flex flex-row border-b border-gray-200">
+                {[
+                  { label: "CATEGORY", value: "EO" },
+                  { label: "SATELLITE TYPE", value: "NANO" },
+                  { label: "ORBIT", value: "SSO" },
+                  { label: "DOWNLINK", value: "HIGH" },
+                  { label: "NORAD ID", value: "38755" },
+                  { label: "TIME LEFT", value: "120H" },
+                  { label: "OBSERVATION POSITIONS", value: "1" },
+                  { label: "button", value: "1" }
+                ].map((item, index) => (
+                  <DataDisplay 
+                    key={item.label}
+                    label={item.label} 
+                    value={item.value}
+                    width="w-[12.5%]" 
+                    border={index < 7}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col">
+              <div className="flex flex-row justify-between border-b border-gray-200">
+                <DataDisplay 
+                  label="TIMESTAMP" 
+                  value={satData?.positions[0]?.timestamp ? formatTimeOnly(satData.positions[0].timestamp) : null}
+                  width="w-1/2" 
+                  border={true}
+                  isLoading={isLoading}
+                />
+                <DataDisplay 
+                  label="ALTITUDE [km]" 
+                  value={satData.positions[0].sataltitude.toFixed(2)}
+                  width="w-1/2" 
+                  border={false} 
+                />
+              </div>
 
-            <div className="flex flex-row justify-between border-b border-gray-200">
-              <DataDisplay 
-                label="AZIMUTH" 
-                value={satData.positions[0].azimuth.toFixed(1)} 
-                unit="°" 
-                width="w-1/2" 
-                border={true} 
-              />
-              <DataDisplay 
-                label="ELEVATION" 
-                value={satData.positions[0].elevation.toFixed(1)} 
-                unit="°" 
-                width="w-1/2" 
-                border={false} 
-              />
-            </div>
+              <div className="flex flex-row justify-between border-b border-gray-200">
+                <DataDisplay 
+                  label="LATITUDE" 
+                  value={satData.positions[0].satlatitude.toFixed(2)} 
+                  unit="° N" 
+                  width="w-1/2" 
+                  border={true} 
+                />
+                <DataDisplay 
+                  label="LONGITUDE" 
+                  value={satData.positions[0].satlongitude.toFixed(2)} 
+                  unit="° W" 
+                  width="w-1/2" 
+                  border={false} 
+                />
+              </div>
 
-            <div className="flex flex-row justify-between border-b border-gray-200">
-              <DataDisplay 
-                label="RIGHT ASCENSION" 
-                value={formatRA(satData.positions[0].ra)} 
-                width="w-1/2" 
-                border={true} 
-              />
-              <DataDisplay 
-                label="DECLINATION" 
-                value={formatDec(satData.positions[0].dec)} 
-                width="w-1/2" 
-                border={false} 
-              />
-            </div>
+              <div className="flex flex-row justify-between border-b border-gray-200">
+                <DataDisplay 
+                  label="AZIMUTH" 
+                  value={satData.positions[0].azimuth.toFixed(1)} 
+                  unit="°" 
+                  width="w-1/2" 
+                  border={true} 
+                />
+                <DataDisplay 
+                  label="ELEVATION" 
+                  value={satData.positions[0].elevation.toFixed(1)} 
+                  unit="°" 
+                  width="w-1/2" 
+                  border={false} 
+                />
+              </div>
 
-            <div className="flex flex-row items-center">
-              <DataDisplay
-                label="MISSION INFO"
-                value={getMissionCode()}
-                width="w-fit"
-                border={false}
-              />
+              <div className="flex flex-row justify-between border-b border-gray-200">
+                <DataDisplay 
+                  label="RIGHT ASCENSION" 
+                  value={formatRA(satData.positions[0].ra)} 
+                  width="w-1/2" 
+                  border={true} 
+                />
+                <DataDisplay 
+                  label="DECLINATION" 
+                  value={formatDec(satData.positions[0].dec)} 
+                  width="w-1/2" 
+                  border={false} 
+                />
+              </div>
+
+              <div className="flex flex-row items-center">
+                <DataDisplay
+                  label="MISSION INFO"
+                  value={getMissionCode()}
+                  width="w-fit"
+                  border={false}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </>
       )}
     </div>
