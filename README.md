@@ -1,51 +1,36 @@
-# Getting Started with Create React App
+# Project Title: SPCE
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+## Description
+SPCE is a React,typescript-based application. This project leverages a proxy server and a JSON file to simulate a backend for development and testing purposes.
 
-In the project directory, you can run:
+### Scripts
+To run the project, you will need to execute the following commands in separate terminals (the last 2 are temporary and won't be required in future versions):
 
-### `npm start`
+- ### `npm start`
+  
+  This command starts the React application in development mode. Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- **Proxy Server**:
+   ### `npm start`
+  
+  This command runs the proxy server defined in `server.js`, allowing you to handle API requests for TLE data during development.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **JSON Server**:
+  ### `json-server --watch db.json --port 3005`
+  
+  This command starts a JSON server that watches the `db.json` file for changes and serves it on port 3005. This simulates a database for this application.
 
 
 
+
+## MORE ABOUT PROJECT
+
+### Application 
 https://github.com/user-attachments/assets/81041460-7676-4331-882d-57207782ff40
 
+### Figma Presentation
+https://www.figma.com/deck/VMMPyiIltyRo6oYj9wHi1q/Untitled?node-id=1-25&t=REk2EOBMpKJH5OuP-1
+
+### Figma file
+<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/slides/VMMPyiIltyRo6oYj9wHi1q/Untitled?node-id=55-2264&embed-host=share" allowfullscreen></iframe>
