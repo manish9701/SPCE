@@ -33,4 +33,4 @@ https://github.com/user-attachments/assets/81041460-7676-4331-882d-57207782ff40
 https://www.figma.com/deck/VMMPyiIltyRo6oYj9wHi1q/Untitled?node-id=1-25&t=REk2EOBMpKJH5OuP-1
 
 ### Figma file
-<iframe style="border: 1px solid rgba(0, 0, 0, 0.1);" width="800" height="450" src="https://embed.figma.com/slides/VMMPyiIltyRo6oYj9wHi1q/Untitled?node-id=55-2264&embed-host=share" allowfullscreen></iframe>
+https://www.figma.com/design/RqXFYgo7kRtxpsxS74zbNB/SPCE?node-id=1787-930&t=BmWEQEPL7g6YPGVQ-1
